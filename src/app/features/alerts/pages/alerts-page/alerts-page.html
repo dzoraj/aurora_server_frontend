@@ -1,0 +1,34 @@
+<h1>Alerts</h1>
+
+@if (loading()) {
+  <p>Loading alerts...</p>
+} @else if (error()) {
+  <p>{{ error() }}</p>
+} @else if (alerts().length === 0) {
+  <p>No alerts found.</p>
+} @else {
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Rule</th>
+        <th>Source</th>
+        <th>Severity</th>
+        <th>Status</th>
+        <th>Assigned To</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (alert of alerts(); track alert.id) {
+        <tr>
+          <td>{{ alert.id }}</td>
+          <td>{{ alert.ruleName }}</td>
+          <td>{{ alert.sourceId }}</td>
+          <td>{{ alert.severity }}</td>
+          <td>{{ alert.status }}</td>
+          <td>{{ alert.assignedTo || '-' }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}
