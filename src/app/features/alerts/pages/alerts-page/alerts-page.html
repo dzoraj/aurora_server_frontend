@@ -1,34 +1,65 @@
-<h1>Alerts</h1>
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h1>Alerts</h1>
+      <p>Total alerts: {{ totalElements() }}</p>
+    </div>
+  </div>
 
-@if (loading()) {
-  <p>Loading alerts...</p>
-} @else if (error()) {
-  <p>{{ error() }}</p>
-} @else if (alerts().length === 0) {
-  <p>No alerts found.</p>
-} @else {
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Rule</th>
-        <th>Source</th>
-        <th>Severity</th>
-        <th>Status</th>
-        <th>Assigned To</th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (alert of alerts(); track alert.id) {
-        <tr>
-          <td>{{ alert.id }}</td>
-          <td>{{ alert.ruleName }}</td>
-          <td>{{ alert.sourceId }}</td>
-          <td>{{ alert.severity }}</td>
-          <td>{{ alert.status }}</td>
-          <td>{{ alert.assignedTo || '-' }}</td>
-        </tr>
-      }
-    </tbody>
-  </table>
-}
+  @if (loading()) {
+    <p>Loading alerts...</p>
+  } @else if (error()) {
+    <p class="error">{{ error() }}</p>
+  } @else if (alerts().length === 0) {
+    <p>No alerts found.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Rule</th>
+            <th>Source</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (alert of alerts(); track alert.id) {
+            <tr>
+              <td>{{ alert.id }}</td>
+              <td>{{ alert.ruleName }}</td>
+              <td>{{ alert.sourceId }}</td>
+              <td>{{ alert.severity }}</td>
+              <td>{{ alert.status }}</td>
+              <td>{{ alert.assignedTo || '-' }}</td>
+              <td>{{ alert.createdAt | date:'short' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button
+        type="button"
+        class="btn secondary"
+        (click)="previousPage()"
+        [disabled]="currentPage() === 0">
+        Previous
+      </button>
+
+      <span class="muted">Page {{ currentPage() + 1 }} of {{ totalPages() }}</span>
+
+      <button
+        type="button"
+        class="btn secondary"
+        (click)="nextPage()"
+        [disabled]="currentPage() >= totalPages() - 1">
+        Next
+      </button>
+    </div>
+  }
+</section>

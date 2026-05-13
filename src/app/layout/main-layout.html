@@ -1,0 +1,29 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">A</span>
+      <div>
+        <div class="brand-title">Aurora</div>
+        <div class="brand-sub">SIEM console</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Dashboard
+      </a>
+      <a routerLink="/alerts" routerLinkActive="active">Alerts</a>
+      <a routerLink="/rules" routerLinkActive="active">Rules</a>
+      <a routerLink="/incidents" routerLinkActive="active">Incidents</a>
+      <a routerLink="/log-events" routerLinkActive="active">Log events</a>
+    </nav>
+
+    <p class="sidebar-foot">
+      API: <code>localhost:8080</code>
+    </p>
+  </aside>
+
+  <main class="main">
+    <router-outlet />
+  </main>
+</div>

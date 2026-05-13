@@ -1,0 +1,128 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <h1>Detection rules</h1>
+      <p class="muted">Total: {{ totalElements() }}</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn secondary" (click)="startCreate()">New rule</button>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input
+      type="search"
+      class="input"
+      placeholder="Search by name…"
+      [value]="searchQuery()"
+      (input)="setSearchQuery($any($event.target).value)"
+      (keydown.enter)="applySearch()"
+    />
+    <button type="button" class="btn" (click)="applySearch()">Search</button>
+    <button type="button" class="btn ghost" (click)="clearSearch()">Clear</button>
+  </div>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="muted">Loading rules…</p>
+  } @else if (rules().length === 0) {
+    <p class="muted">No rules match the current filters.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Severity</th>
+            <th>Enabled</th>
+            <th>Updated</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (rule of rules(); track rule.id) {
+            <tr>
+              <td>
+                <div class="cell-title">{{ rule.name }}</div>
+                <div class="cell-sub">{{ rule.description || '—' }}</div>
+              </td>
+              <td>{{ rule.status }}</td>
+              <td>{{ rule.defaultSeverity }}</td>
+              <td>
+                <button type="button" class="btn tiny" (click)="toggle(rule)">
+                  {{ rule.enabled ? 'On' : 'Off' }}
+                </button>
+              </td>
+              <td>{{ rule.updatedAt | date: 'short' }}</td>
+              <td class="row-actions">
+                <button type="button" class="btn link" (click)="startEdit(rule)">Edit</button>
+                <button type="button" class="btn link danger" (click)="remove(rule)">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button type="button" class="btn secondary" (click)="previousPage()" [disabled]="currentPage() === 0">
+        Previous
+      </button>
+      <span class="muted">Page {{ currentPage() + 1 }} of {{ totalPages() || 1 }}</span>
+      <button
+        type="button"
+        class="btn secondary"
+        (click)="nextPage()"
+        [disabled]="currentPage() >= totalPages() - 1">
+        Next
+      </button>
+    </div>
+  }
+
+  <section class="panel">
+    <h2>{{ editingId() == null ? 'Create rule' : 'Edit rule #' + editingId() }}</h2>
+    <p class="hint muted">
+      Use <strong>status ID</strong> and <strong>severity ID</strong> that exist in your database (seed data), e.g. 1 and 1.
+    </p>
+
+    <form class="form-grid" [formGroup]="form" (ngSubmit)="submitForm()">
+      <label class="field">
+        <span>Name *</span>
+        <input class="input" type="text" formControlName="name" />
+      </label>
+      <label class="field">
+        <span>Status ID</span>
+        <input class="input" type="number" formControlName="statusId" />
+      </label>
+      <label class="field">
+        <span>Severity ID</span>
+        <input class="input" type="number" formControlName="defaultSeverityId" />
+      </label>
+      <label class="field full">
+        <span>Description</span>
+        <input class="input" type="text" formControlName="description" />
+      </label>
+      <label class="field full">
+        <span>Condition *</span>
+        <textarea class="input textarea" rows="3" formControlName="condition"></textarea>
+      </label>
+      <label class="field full">
+        <span>Alert message template</span>
+        <input class="input" type="text" formControlName="alertMessage" />
+      </label>
+      <label class="field checkbox">
+        <input type="checkbox" formControlName="enabled" />
+        <span>Enabled</span>
+      </label>
+      <div class="form-actions full">
+        <button type="submit" class="btn" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : editingId() == null ? 'Create' : 'Update' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</section>

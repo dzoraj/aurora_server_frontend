@@ -6,7 +6,7 @@ export interface IncidentResponse {
   status: string | null;
   assignedTo: string | null;
   timeline: string | null;
-  alertIds: number[];
+  alertIds?: number[];
   createdAt: string;
   resolvedAt: string | null;
 }

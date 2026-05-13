@@ -1,0 +1,31 @@
+<section class="page">
+  <header class="page-header">
+    <h1>Dashboard</h1>
+    <p class="lede">Overview of entities stored in Aurora.</p>
+  </header>
+
+  @if (loading()) {
+    <p class="muted">Loading counts…</p>
+  } @else if (error()) {
+    <p class="error">{{ error() }}</p>
+  } @else {
+    <div class="cards">
+      <a class="card" routerLink="/alerts">
+        <span class="card-label">Alerts</span>
+        <span class="card-value">{{ alertTotal() }}</span>
+      </a>
+      <a class="card" routerLink="/rules">
+        <span class="card-label">Rules</span>
+        <span class="card-value">{{ ruleTotal() }}</span>
+      </a>
+      <a class="card" routerLink="/incidents">
+        <span class="card-label">Incidents</span>
+        <span class="card-value">{{ incidentTotal() }}</span>
+      </a>
+      <a class="card" routerLink="/log-events">
+        <span class="card-label">Log events</span>
+        <span class="card-value">{{ logEventTotal() }}</span>
+      </a>
+    </div>
+  }
+</section>

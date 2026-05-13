@@ -1,0 +1,101 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <h1>Log events</h1>
+      <p class="muted">Total: {{ totalElements() }}</p>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input
+      type="search"
+      class="input"
+      placeholder="Search message (keyword)…"
+      [value]="keyword()"
+      (input)="setKeyword($any($event.target).value)"
+      (keydown.enter)="applySearch()"
+    />
+    <button type="button" class="btn" (click)="applySearch()">Search</button>
+    <button type="button" class="btn ghost" (click)="clearSearch()">Clear</button>
+  </div>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  @if (loading()) {
+    <p class="muted">Loading log events…</p>
+  } @else if (events().length === 0) {
+    <p class="muted">No log events found.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Source</th>
+            <th>Severity</th>
+            <th>Message</th>
+            <th>Timestamp</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ev of events(); track ev.id) {
+            <tr>
+              <td>{{ ev.id }}</td>
+              <td>{{ ev.sourceId }}</td>
+              <td>{{ ev.severity || '—' }}</td>
+              <td class="msg">{{ ev.message }}</td>
+              <td>{{ ev.timestamp | date: 'short' }}</td>
+              <td class="row-actions">
+                <button type="button" class="btn link danger" (click)="remove(ev)">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button type="button" class="btn secondary" (click)="previousPage()" [disabled]="currentPage() === 0">
+        Previous
+      </button>
+      <span class="muted">Page {{ currentPage() + 1 }} of {{ totalPages() || 1 }}</span>
+      <button
+        type="button"
+        class="btn secondary"
+        (click)="nextPage()"
+        [disabled]="currentPage() >= totalPages() - 1">
+        Next
+      </button>
+    </div>
+  }
+
+  <section class="panel">
+    <h2>Ingest log event</h2>
+    <p class="hint muted"><strong>Source ID</strong> must reference an existing source row in the API database.</p>
+
+    <form class="form-grid" [formGroup]="form" (ngSubmit)="submitCreate()">
+      <label class="field">
+        <span>Source ID *</span>
+        <input class="input" type="number" formControlName="sourceId" />
+      </label>
+      <label class="field">
+        <span>Severity ID (optional)</span>
+        <input class="input" type="number" formControlName="severityId" />
+      </label>
+      <label class="field full">
+        <span>Message *</span>
+        <textarea class="input textarea" rows="2" formControlName="message"></textarea>
+      </label>
+      <label class="field full">
+        <span>Raw data (optional)</span>
+        <textarea class="input textarea mono" rows="2" formControlName="rawData"></textarea>
+      </label>
+      <div class="form-actions full">
+        <button type="submit" class="btn" [disabled]="saving()">{{ saving() ? 'Sending…' : 'Create' }}</button>
+      </div>
+    </form>
+  </section>
+</section>
