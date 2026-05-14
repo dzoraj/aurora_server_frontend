@@ -1,0 +1,10 @@
+<section class="page">
+  <h1>Unauthorized</h1>
+  <p class="muted">You are not signed in, or this account cannot access Aurora.</p>
+  @if (authEnabled) {
+    <p>
+      <button type="button" class="btn" (click)="tryAgain()">Try sign-in again</button>
+    </p>
+  }
+  <p><a routerLink="/dashboard">Back to dashboard</a></p>
+</section>

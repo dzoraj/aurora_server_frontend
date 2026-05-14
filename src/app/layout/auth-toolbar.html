@@ -1,0 +1,10 @@
+<div class="auth-toolbar">
+  @if (displayName(); as name) {
+    @if (name) {
+      <span class="user-label">{{ name }}</span>
+    }
+    <button type="button" class="btn secondary tiny" (click)="logout()">Log out</button>
+  } @else {
+    <button type="button" class="btn tiny" (click)="login()">Log in</button>
+  }
+</div>

@@ -8,6 +8,10 @@
       </div>
     </div>
 
+    @if (authEnabled) {
+      <app-auth-toolbar />
+    }
+
     <nav class="nav">
       <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         Dashboard
