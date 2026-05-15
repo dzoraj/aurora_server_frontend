@@ -75,6 +75,7 @@
   <section class="panel">
     <h2>Ingest log event</h2>
     <p class="hint muted"><strong>Source ID</strong> must reference an existing source row in the API database.</p>
+    <p class="hint muted">Each create sends the current time as an ISO-8601 timestamp (UTC), matching the server API.</p>
 
     <form class="form-grid" [formGroup]="form" (ngSubmit)="submitCreate()">
       <label class="field">

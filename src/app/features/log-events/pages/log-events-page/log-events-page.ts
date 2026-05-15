@@ -1,4 +1,5 @@
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -98,14 +99,17 @@ export class LogEventsPage implements OnInit {
     const v = this.form.getRawValue();
     const sev = v.severityId;
     const severityId =
-      sev === null || sev === undefined || Number.isNaN(Number(sev)) ? null : Number(sev);
+      sev === null || sev === undefined || Number.isNaN(Number(sev)) || Number(sev) <= 0
+        ? null
+        : Number(sev);
 
     const payload: LogEventRequest = {
-      sourceId: v.sourceId,
+      sourceId: Number(v.sourceId),
       message: v.message,
       severityId,
-      rawData: v.rawData || null,
-      timestamp: null
+      rawData: v.rawData?.trim() ? v.rawData.trim() : null,
+      // Matches backend `OffsetDateTime` (browser ISO strings include `Z`).
+      timestamp: new Date().toISOString()
     };
 
     this.saving.set(true);
@@ -120,9 +124,9 @@ export class LogEventsPage implements OnInit {
         });
         this.loadEvents(this.currentPage());
       },
-      error: () => {
+      error: (err: unknown) => {
         this.saving.set(false);
-        this.error.set('Create failed. Ensure source ID exists in the database.');
+        this.error.set(resolveHttpError(err, 'Create log event'));
       }
     });
   }
@@ -136,4 +140,62 @@ export class LogEventsPage implements OnInit {
       error: () => this.error.set('Delete failed.')
     });
   }
+}
+
+function resolveHttpError(err: unknown, action: string): string {
+  if (!(err instanceof HttpErrorResponse)) {
+    return `${action} failed.`;
+  }
+  const status = err.status;
+  if (status === 401 || status === 403) {
+    return `${action}: not authorized (HTTP ${status}). Sign in again or check Keycloak token.`;
+  }
+  if (status === 404) {
+    const detail = readSpringErrorDetail(err);
+    return detail ?? `${action}: not found (HTTP 404). Check source id exists.`;
+  }
+  if (status === 400) {
+    const detail = readSpringErrorDetail(err);
+    return detail ?? `${action}: bad request (HTTP 400).`;
+  }
+  const detail = readSpringErrorDetail(err);
+  if (detail) {
+    return `${action} failed (HTTP ${status}): ${detail}`;
+  }
+  return `${action} failed (HTTP ${status}).`;
+}
+
+function readSpringErrorDetail(err: HttpErrorResponse): string | null {
+  const body = err.error;
+  if (body == null) {
+    return null;
+  }
+  if (typeof body === 'string') {
+    return body.length > 200 ? body.slice(0, 200) + '…' : body;
+  }
+  if (typeof body === 'object') {
+    const o = body as Record<string, unknown>;
+    const fieldErrors = o['fieldErrors'];
+    if (fieldErrors != null && typeof fieldErrors === 'object' && !Array.isArray(fieldErrors)) {
+      const parts = Object.entries(fieldErrors as Record<string, unknown>)
+        .map(([key, val]) => `${key}: ${String(val)}`)
+        .join('; ');
+      if (parts.length > 0) {
+        return parts.length > 400 ? parts.slice(0, 400) + '…' : parts;
+      }
+    }
+    const detail = o['detail'];
+    if (typeof detail === 'string' && detail.length > 0) {
+      return detail;
+    }
+    const msg = o['message'];
+    if (typeof msg === 'string' && msg.length > 0) {
+      return msg;
+    }
+    const errDesc = o['error'];
+    if (typeof errDesc === 'string' && errDesc.length > 0) {
+      return errDesc;
+    }
+  }
+  return null;
 }
